@@ -37,10 +37,8 @@ df_final['idade'] = df_final['data_nascimento'].apply(lambda x: (datetime.dateti
 
 df_final = df_final.dropna()
 
-#Filtro por mês
+#calcular
 df_final["Mes"] = df_final["DATA"].apply(lambda x: str(x.year) + "-" + str(x.month))
-#mes = st.sidebar.selectbox("Mês", df_final["Mes"].unique())
-#df_filtrado = df_final[df_final["Mes"] == mes]
 
 def filtrar_por_cidade_setor(df, cidade_selecionada, setor_selecionado):
     df_filtrado = df_final[df_final['cidade'] == cidade_selecionada]
@@ -77,8 +75,9 @@ else:
 col1, col2 = st.columns(2)
 col3, col4 = st.columns(2)
 col5, col6 = st.columns(2)
-col7 = st.columns(1)
-col8 = st.columns(1)
+col7, col8 = st.columns(2)
+col9, col10 = st.columns(2)
+col11, col12 = st.columns(2)
 
 # Gráfico por idade e gênero
 df_agrupado = df_filtrado.groupby(["genereo", "idade"]).size().to_frame(name="quantidade")
@@ -92,22 +91,36 @@ df_agrupado_cidade = df_agrupado_cidade.reset_index()
 fig_cidade = px.bar(df_agrupado_cidade, x="cidade", y="quantidade_vendida", color="Mes", title="Quantidade de produtos vendidos por cidade e mês")
 col2.plotly_chart(fig_cidade, use_container_width=True)
 
+fig_kind = px.pie(df_filtrado, values="quantidade", names="produto",
+                   title="Faturamento por tipo de pagamento")
+col3.plotly_chart(fig_kind, use_container_width=True)
+
+fig_hist = px.histogram(df_filtrado, x='forma_pagamento', title='Frequência de Formas de Pagamento Utilizadas')
+col4.plotly_chart(fig_hist, use_container_width=True)
+
+fig_scatter = px.scatter(df_filtrado, x='custo_atual', y='preco_atual', title='Relação entre Custo e Preço dos Produtos', hover_data=['produto', 'secao'])
+col5.plotly_chart(fig_scatter, use_container_width=True)
+
+fig_line = px.line(df_filtrado, x='secao', y='preco_atual', title='Variação do Preço Atual dos Produtos por Seção', markers=True, color='secao')
+col6.plotly_chart(fig_line, use_container_width=True)
+
+
 # Medidas de tendência central
 media_idade = df_filtrado['idade'].mean()
 mediana_idade = df_filtrado['idade'].median()
 moda_idade = df_filtrado['idade'].mode()[0]
 
-col3.metric("Média de Idade", f"{media_idade:.2f}")
-col3.metric("Mediana de Idade", f"{mediana_idade:.2f}")
-col3.metric("Moda de Idade", f"{moda_idade:.2f}")
+col7.metric("Média de Idade", f"{media_idade:.2f}")
+col7.metric("Mediana de Idade", f"{mediana_idade:.2f}")
+col7.metric("Moda de Idade", f"{moda_idade:.2f}")
 
 media_valor_venda = df_filtrado['valor'].mean()
 mediana_valor_venda = df_filtrado['valor'].median()
 moda_valor_venda = df_filtrado['valor'].mode()[0]
 
-col4.metric("Média de Valor de Venda", f"{media_valor_venda:.2f}")
-col4.metric("Mediana de Valor de Venda", f"{mediana_valor_venda:.2f}")
-col4.metric("Moda de Valor de Venda", f"{moda_valor_venda:.2f}")
+col8.metric("Média de Valor de Venda", f"{media_valor_venda:.2f}")
+col8.metric("Mediana de Valor de Venda", f"{mediana_valor_venda:.2f}")
+col8.metric("Moda de Valor de Venda", f"{moda_valor_venda:.2f}")
 
 # Modelo preditivo
 X = df_filtrado[['idade', 'codigo_produto', 'quantidade', 'valor_unitario', 'desconto_aplicado']]
@@ -119,8 +132,8 @@ y_pred = model.predict(X_test) #previsões
 mse = mean_squared_error(y_test, y_pred)#fazer avaliação do modelo
 r2 = r2_score(y_test, y_pred)
 
-col5.write(f"Mean Squared Error: {mse:.2f}")
-col6.write(f"R2 Score: {r2:.2f}")
+col9.write(f"Erro quadrático médio: {mse:.2f}")
+col10.write(f"R2 Score: {r2:.2f}")
 
 # Prever a quantidade de produtos vendidos para cada produto
 df_filtrado['quantidade_predita'] = model.predict(df_filtrado[['idade', 'codigo_produto', 'quantidade', 'valor_unitario', 'desconto_aplicado']])
