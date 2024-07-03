@@ -123,7 +123,7 @@ col8.metric("Mediana de Valor de Venda", f"{mediana_valor_venda:.2f}")
 col8.metric("Moda de Valor de Venda", f"{moda_valor_venda:.2f}")
 
 # Modelo preditivo
-X = df_filtrado[['idade', 'codigo_produto', 'quantidade', 'valor_unitario', 'desconto_aplicado']]
+X = df_filtrado[['codigo_produto', 'quantidade', 'valor_unitario', 'desconto_aplicado']]
 y = df_filtrado['quantidade']  #variável alvo: quantidade de produtos vendidos
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state=42) #dividir os dados em treino e teste
 model = LinearRegression() #treinar o modelo de regressão linear
@@ -136,7 +136,7 @@ col9.write(f"Erro quadrático médio: {mse:.2f}")
 col10.write(f"R2 Score: {r2:.2f}")
 
 # Prever a quantidade de produtos vendidos para cada produto
-df_filtrado['quantidade_predita'] = model.predict(df_filtrado[['idade', 'codigo_produto', 'quantidade', 'valor_unitario', 'desconto_aplicado']])
+df_filtrado['quantidade_predita'] = model.predict(df_filtrado[['codigo_produto', 'quantidade', 'valor_unitario', 'desconto_aplicado']])
 
 # Listar os top 10 produtos com maior quantidade prevista
 top10_predicoes = df_filtrado.nlargest(10, 'quantidade_predita')[['codigo_produto', 'produto', 'quantidade_predita']]
